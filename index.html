@@ -7,10 +7,12 @@
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0d6efd">
-    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="./icon-192x192.png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="./style.css">
     
     <style>
         body { background-color: #f4f6f9; font-family: Arial, sans-serif; }
@@ -67,13 +69,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <script src="./js/db.js"></script> 
+    <script src="./db.js"></script> 
+    <script src="./inventory.js"></script>
+    <script src="./customers.js"></script>
+    <script src="./rentOut.js"></script>
+    <script src="./returnBill.js"></script>
+    <script src="./settings.js"></script>
     
-    <script src="./components/inventory.js"></script>
-    <script src="./components/customers.js"></script>
-    <script src="./components/rentOut.js"></script>
-    <script src="./components/returnBill.js"></script>
-    <script src="./components/settings.js"></script>
+    <script src="./sw.js"></script> 
     
     <script>
         // Shop Name Load karna
@@ -103,20 +106,20 @@
             }
         }
         
-        // App Start Logic - NO BLOCKS NOW!
+        // App Start Logic
         window.onload = () => {
-            // UI turant dikha do bina database ka wait kiye taaki testing ho sake
+            // UI turant dikha do
             showModule('rentOut'); 
 
-            // Background me database init try karo
+            // Database init karo
             if(typeof initDB === 'function') {
                 initDB().then(() => {
-                    console.log("Database connected successfully in background.");
+                    console.log("Database connected successfully!");
                 }).catch(err => {
-                    console.warn("Background Database Error (Ignore this while testing UI): ", err);
+                    console.warn("Database Error: ", err);
                 });
             } else {
-                console.error("Database file (js/db.js) nahi mili!");
+                console.error("Database file (db.js) nahi mili!");
             }
         };
     </script>
