@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RentPro ERP</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #f4f6f9; font-family: Arial, sans-serif; }
+        
+        /* App Header Design */
+        .app-header { background: #0d6efd; color: #fff; padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-bottom-left-radius: 15px; border-bottom-right-radius: 15px; margin-bottom: 20px; }
+        
+        /* Classic Action Buttons Setup */
+        .action-btn-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 25px; }
+        .action-btn { flex: 1; min-width: 110px; padding: 12px 10px; font-weight: bold; border-radius: 10px; border: none; box-shadow: 0 3px 5px rgba(0,0,0,0.1); transition: 0.2s; font-size: 0.9em; }
+        .action-btn:active { transform: scale(0.95); }
+        .action-btn i { display: block; font-size: 1.5em; margin-bottom: 5px; }
+        
+        /* Colors for Buttons */
+        .btn-challan { background: #ffc107; color: #000; }
+        .btn-return { background: #198754; color: #fff; }
+        .btn-khata { background: #6f42c1; color: #fff; }
+        .btn-stock { background: #0dcaf0; color: #000; }
+        .btn-settings { background: #343a40; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="app-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0 fw-bold"><i class="fa-solid fa-helmet-safety text-warning"></i> <span id="headerShopName">RentPro App</span></h3>
+    </div>
+
+    <div class="container" id="main-ui-container">
+        <div class="action-btn-group">
+            <button class="action-btn btn-challan" onclick="showModule('rentOut')">
+                <i class="fa-solid fa-truck-fast"></i> Challan
+            </button>
+            <button class="action-btn btn-return" onclick="showModule('returnBill')">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Return & Bill
+            </button>
+            <button class="action-btn btn-khata" onclick="showModule('customers')">
+                <i class="fa-solid fa-book"></i> Khata (Ledger)
+            </button>
+            <button class="action-btn btn-stock" onclick="showModule('inventory')">
+                <i class="fa-solid fa-boxes-stacked"></i> Stock (Items)
+            </button>
+            <button class="action-btn btn-settings" onclick="showModule('settings')">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+        </div>
+
+        <div id="app-content">
+            <div id="rentOut-container" style="display:none;"></div>
+            <div id="returnBill-container" style="display:none;"></div>
+            <div id="customers-container" style="display:none;"></div>
+            <div id="inventory-container" style="display:none;"></div>
+            <div id="settings-container" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script src="./js/db.js"></script> 
+    
+    <script src="./components/inventory.js"></script>
+    <script src="./components/customers.js"></script>
+    <script src="./components/rentOut.js"></script>
+    <script src="./components/returnBill.js"></script>
+    <script src="./components/settings.js"></script>
+    
+    <script>
+        // Shop Name Load karna
+        let shopData = JSON.parse(localStorage.getItem('shopDetails'));
+        if(shopData && shopData.name) {
+            document.getElementById('headerShopName').innerText = shopData.name;
+        }
+
+        function showModule(moduleName) {
+            document.getElementById('inventory-container').style.display = 'none';
+            document.getElementById('customers-container').style.display = 'none';
+            document.getElementById('rentOut-container').style.display = 'none';
+            document.getElementById('returnBill-container').style.display = 'none';
+            document.getElementById('settings-container').style.display = 'none';
+            
+            const targetContainer = document.getElementById(`${moduleName}-container`);
+            if(targetContainer) targetContainer.style.display = 'block';
+            
+            try {
+                if(moduleName === 'inventory' && typeof renderInventoryUI === 'function') renderInventoryUI();
+                if(moduleName === 'customers' && typeof renderCustomersUI === 'function') renderCustomersUI();
+                if(moduleName === 'rentOut' && typeof renderRentOutUI === 'function') renderRentOutUI();
+                if(moduleName === 'returnBill' && typeof renderReturnBillUI === 'function') renderReturnBillUI();
+                if(moduleName === 'settings' && typeof renderSettingsUI === 'function') renderSettingsUI();
+            } catch (err) {
+                console.error("Module load error: ", err);
+            }
+        }
+        
+        // App Start Logic - NO BLOCKS NOW!
+        window.onload = () => {
+            // UI turant dikha do bina database ka wait kiye taaki testing ho sake
+            showModule('rentOut'); 
+
+            // Background me database init try karo
+            if(typeof initDB === 'function') {
+                initDB().then(() => {
+                    console.log("Database connected successfully in background.");
+                }).catch(err => {
+                    console.warn("Background Database Error (Ignore this while testing UI): ", err);
+                });
+            } else {
+                console.error("Database file (js/db.js) nahi mili!");
+            }
+        };
+    </script>
+</body>
+</html>
